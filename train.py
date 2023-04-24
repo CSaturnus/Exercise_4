@@ -7,6 +7,8 @@ from torch.autograd import Variable
 import argparse
 import os
 
+from torch.utils.tensorboard import SummaryWriter
+
 from tqdm import tqdm
 
 from helpers import *
@@ -63,7 +65,7 @@ def train(inp, target):
     loss.backward()
     decoder_optimizer.step()
 
-    return loss.data[0] / args.chunk_len
+    return loss.item() / args.chunk_len
 
 def save():
     save_filename = os.path.splitext(os.path.basename(args.filename))[0] + '.pt'
@@ -71,6 +73,8 @@ def save():
     print('Saved as %s' % save_filename)
 
 # Initialize models and start training
+
+writer = SummaryWriter('runs/CharRNN')
 
 decoder = CharRNN(
     n_characters,
@@ -93,6 +97,7 @@ try:
     print("Training for %d epochs..." % args.n_epochs)
     for epoch in tqdm(range(1, args.n_epochs + 1)):
         loss = train(*random_training_set(args.chunk_len, args.batch_size))
+        writer.add_scalar('Perplexity/train', math.exp(loss), (epoch + 1))
         loss_avg += loss
 
         if epoch % args.print_every == 0:
@@ -105,4 +110,5 @@ try:
 except KeyboardInterrupt:
     print("Saving before quit...")
     save()
+
 
