@@ -97,7 +97,7 @@ try:
     print(" ing for %d epochs..." % args.n_epochs)
     for epoch in tqdm(range(1, args.n_epochs + 1)):
         loss = train(*random_training_set(args.chunk_len, args.batch_size))
-        writer.add_scalar('Perplexity/train', math.exp(loss.item()), (epoch + 1))
+        writer.add_scalar('Perplexity/train', math.exp(loss), (epoch + 1))
         loss_avg += loss
 
         if epoch % args.print_every == 0:
